@@ -1,0 +1,28 @@
+[package]
+name = "glam_shapes"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["lib"]
+path = "src/lib.rs"
+
+
+[features]
+default = ["glam_025"]
+glam_027 = ["dep:glam_027"]
+glam_026 = ["dep:glam_026"]
+glam_025 = ["dep:glam_025"]
+
+[dependencies]
+glam_027 = { package = "glam", version = "0.27", features = ["core-simd"], optional = true }
+glam_026 = { package = "glam", version = "0.26", features = ["core-simd"], optional = true }
+glam_025 = { package = "glam", version = "0.25", features = ["core-simd"], optional = true }
+automod = "1.0.14"
+
+[workspace]
+resolver = "2"
+members = [
+    "codegen",
+]

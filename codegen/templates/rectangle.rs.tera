@@ -1,0 +1,119 @@
+{% block content %}
+use std::ops::Range;
+
+use crate::glam::{{glam_type}};
+use crate::iters::rect_iter::{RectangleOutlinePixels, RectanglePixels};
+
+
+pub struct {{ name }}{{glam_type}} {
+    pub(crate) tl: {{glam_type}},
+    pub(crate) br: {{glam_type}},
+}
+
+
+impl {{ name }}{{glam_type}} {
+    pub const fn new_const(tl: {{ glam_type }}, br: {{ glam_type }}) -> Self {
+        Self { tl, br }
+    }
+
+    pub fn new_on_origin(size: {{ glam_type }}) -> Self {
+        Self { tl: {{ glam_type }}::ZERO, br: size }
+    }
+
+    pub fn new(tl: {{ glam_type }}, br: {{ glam_type }}) -> Self {
+
+        let ttl = {{ glam_type }}::new(tl.x.min(br.x), tl.y.min(br.y));
+        let tbr = {{ glam_type }}::new(tl.x.max(br.x), tl.y.max(br.y));
+
+        Self { tl: ttl, br: tbr }
+    }
+
+    pub fn new_with_limits(tl: {{ glam_type }}, br: {{ glam_type }}, limits: Rectangle{{ glam_type }}) -> Self {
+        let mut new_tl = tl;
+        if tl.x < limits.tl.x {
+            new_tl.x = limits.tl.x;
+        }
+        if tl.y < limits.tl.y {
+            new_tl.y = limits.tl.y;
+        }
+        let mut new_br = br;
+
+        if br.x > limits.br.x {
+            new_br.x = limits.br.x;
+        }
+        if br.y > limits.br.y {
+            new_br.y = limits.br.y;
+        }
+
+        Self { tl: new_tl, br: new_br }
+    }
+
+
+    pub fn tl(&self) -> {{ glam_type }} {
+        self.tl
+    }
+
+    pub fn br(&self) -> {{ glam_type }} {
+        self.br
+    }
+
+    pub fn size(&self) -> {{ glam_type }} {
+        self.br - self.tl
+    }
+
+    pub fn position(&self) -> {{ glam_type }} {
+        self.tl
+    }
+
+    pub fn contains(&self, coord: {{ glam_type }}) -> bool {
+        self.tl.cmple(coord).all() && self.br.cmpge(coord).all()
+    }    
+
+    /// Returns the range of Y coordinates in this rectangle.
+    pub fn rows(&self) -> Range<{{num_type}}> {
+        self.tl.y..self.br.y  
+    }
+
+    /// Returns the range of Y coordinates in this rectangle.
+    pub fn rows_limited(&self, limit: &Option<{{ name }}{{glam_type}}>) -> Range<{{num_type}}> {
+        if let Some(limit) = limit {
+            self.tl.y.max(limit.tl.y)..self.br.y.min(limit.br.y)
+        } else {
+            self.rows()
+        }
+    }
+
+    /// Returns the range of X coordinates in this rectangle.
+    pub fn columns(&self) -> Range<{{num_type}}> {
+        self.tl.x..self.br.x
+    }
+
+    /// Returns `true` is the rectangle is zero sized.
+    ///
+    /// A rectangle is zero sized if the width or height are zero.
+    pub fn is_zero_sized(&self) -> bool {
+        let size = self.size();
+        size.y == 0{{num_suffix}} || size.x == 0{{num_suffix}}
+    }
+
+    pub fn pixel_iter(&self) -> RectanglePixels {
+        {% if num_type != "i32" %}
+        let irect = crate::rectangle::rectangle_ivec2::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        RectanglePixels::new(&irect)
+        {% else %}
+        RectanglePixels::new(self)
+        {% endif %}
+    }
+
+    pub fn pixel_outline_iter(&self) -> RectangleOutlinePixels {
+        {% if num_type != "i32" %}
+        let irect = crate::rectangle::rectangle_ivec2::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        RectangleOutlinePixels::new(&irect)
+        {% else %}
+        RectangleOutlinePixels::new(self)
+        {% endif %}
+    }
+}
+
+
+{% endblock %}
