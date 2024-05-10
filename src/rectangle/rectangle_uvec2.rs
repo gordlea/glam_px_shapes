@@ -91,6 +91,10 @@ impl RectangleUVec2 {
         self.tl.cmple(coord).all() && self.br.cmpge(coord).all()
     }    
 
+    pub fn overlaps(&self, other: &RectangleUVec2) -> bool {
+        self.tl.x < other.br.x && self.br.x > other.tl.x && self.tl.y < other.br.y && self.br.y > other.tl.y
+    }
+
     /// Returns the range of Y coordinates in this rectangle.
     pub fn rows(&self) -> Range<u32> {
         self.tl.y..self.br.y  

@@ -16,7 +16,7 @@ pub struct RectanglePixels {
 
 impl RectanglePixels {
     pub(crate) fn new(rectangle: &RectangleIVec2, outline: bool) -> Self {
-        eprintln!("RectanglePixels rect: {:?}, outline: {:?}", rectangle, outline);
+        // eprintln!("RectanglePixels rect: {:?}, outline: {:?}", rectangle, outline);
         // Return `Self::empty` for all zero sized rectangles.
         // The iterator would behave correctly without this check, but would loop unnecessarily for
         // rectangles with zero width.

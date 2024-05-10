@@ -107,6 +107,10 @@ impl {{ struct_name }} {
         self.tl.cmple(coord).all() && self.br.cmpge(coord).all()
     }    
 
+    pub fn overlaps(&self, other: &{{ struct_name }}) -> bool {
+        self.tl.x < other.br.x && self.br.x > other.tl.x && self.tl.y < other.br.y && self.br.y > other.tl.y
+    }
+
     /// Returns the range of Y coordinates in this rectangle.
     pub fn rows(&self) -> Range<{{num_type}}> {
         self.tl.y..self.br.y  
