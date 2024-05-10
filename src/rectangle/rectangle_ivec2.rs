@@ -2,14 +2,13 @@
 use std::ops::Range;
 
 use crate::glam::IVec2;
-use crate::iters::rect_iter::{RectangleOutlinePixels, RectanglePixels};
+use crate::iters::rect_iter::RectanglePixels;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RectangleIVec2 {
-    pub(crate) tl: IVec2,
-    pub(crate) br: IVec2,
+    pub tl: IVec2,
+    pub br: IVec2,
 }
-
 
 impl RectangleIVec2 {
     pub const fn new_const(tl: IVec2, br: IVec2) -> Self {
@@ -46,6 +45,28 @@ impl RectangleIVec2 {
         }
 
         Self { tl: new_tl, br: new_br }
+    }
+
+    pub fn from_points(points: Vec<IVec2>) -> Self {
+        let mut tl = IVec2::new(i32::MAX, i32::MAX);
+        let mut br = IVec2::new(i32::MIN, i32::MIN);
+
+        for point in points {
+            tl = tl.min(point);
+            br = br.max(point);
+        }
+
+        Self { tl, br }
+    }
+    
+    // if both points are zero, the rectangle is zeroed
+    pub fn is_zeroed(&self) -> bool {
+        self.tl == IVec2::ZERO && self.br == IVec2::ZERO
+    }
+
+    pub fn add_point(&mut self, point: IVec2) {
+        self.tl = self.tl.min(point);
+        self.br = self.br.max(point);
     }
 
 
@@ -96,17 +117,28 @@ impl RectangleIVec2 {
         size.y == 0 || size.x == 0
     }
 
-    pub fn pixel_iter(&self) -> RectanglePixels {
+    pub fn pixel_iter(&self, outline: bool) -> RectanglePixels {
         
-        RectanglePixels::new(self)
-        
-    }
-
-    pub fn pixel_outline_iter(&self) -> RectangleOutlinePixels {
-        
-        RectangleOutlinePixels::new(self)
+        RectanglePixels::new(self, outline)
         
     }
 }
 
 
+impl crate::Shape<IVec2> for RectangleIVec2 {
+    fn position(&self) -> IVec2 {
+        self.tl()
+    }
+
+    fn center(&self) -> IVec2 {
+        (self.tl + self.br) / 2
+    }
+
+    fn contains(&self, coord: IVec2) -> bool {
+        self.contains(coord)
+    }
+
+    fn pixel_iter(&self, outline: bool) -> impl Iterator<Item = IVec2> {
+        self.pixel_iter(outline)
+    }
+}

@@ -1,5 +1,5 @@
 [package]
-name = "glam_shapes"
+name = "glam_px_shapes"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -16,10 +16,11 @@ glam_026 = ["dep:glam_026"]
 glam_025 = ["dep:glam_025"]
 
 [dependencies]
-glam_027 = { package = "glam", version = "0.27", features = ["core-simd"], optional = true }
-glam_026 = { package = "glam", version = "0.26", features = ["core-simd"], optional = true }
-glam_025 = { package = "glam", version = "0.25", features = ["core-simd"], optional = true }
+glam_027 = { package = "glam", version = "0.27", features = ["core-simd", "approx", "fast-math"], optional = true }
+glam_026 = { package = "glam", version = "0.26", features = ["core-simd", "approx", "fast-math"], optional = true }
+glam_025 = { package = "glam", version = "0.25", features = ["core-simd", "approx", "fast-math"], optional = true }
 automod = "1.0.14"
+approx = "0.5.1"
 
 [workspace]
 resolver = "2"

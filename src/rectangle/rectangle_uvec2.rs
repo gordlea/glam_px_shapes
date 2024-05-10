@@ -2,14 +2,14 @@
 use std::ops::Range;
 
 use crate::glam::UVec2;
-use crate::iters::rect_iter::{RectangleOutlinePixels, RectanglePixels};
+use crate::glam::IVec2;
+use crate::iters::rect_iter::RectanglePixels;
 
-
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct RectangleUVec2 {
-    pub(crate) tl: UVec2,
-    pub(crate) br: UVec2,
+    pub tl: UVec2,
+    pub br: UVec2,
 }
-
 
 impl RectangleUVec2 {
     pub const fn new_const(tl: UVec2, br: UVec2) -> Self {
@@ -46,6 +46,28 @@ impl RectangleUVec2 {
         }
 
         Self { tl: new_tl, br: new_br }
+    }
+
+    pub fn from_points(points: Vec<UVec2>) -> Self {
+        let mut tl = UVec2::new(u32::MAX, u32::MAX);
+        let mut br = UVec2::new(u32::MIN, u32::MIN);
+
+        for point in points {
+            tl = tl.min(point);
+            br = br.max(point);
+        }
+
+        Self { tl, br }
+    }
+    
+    // if both points are zero, the rectangle is zeroed
+    pub fn is_zeroed(&self) -> bool {
+        self.tl == UVec2::ZERO && self.br == UVec2::ZERO
+    }
+
+    pub fn add_point(&mut self, point: UVec2) {
+        self.tl = self.tl.min(point);
+        self.br = self.br.max(point);
     }
 
 
@@ -96,19 +118,29 @@ impl RectangleUVec2 {
         size.y == 0 || size.x == 0
     }
 
-    pub fn pixel_iter(&self) -> RectanglePixels {
+    pub fn pixel_iter(&self, outline: bool) -> RectanglePixels {
         
-        let irect = crate::rectangle::rectangle_ivec2::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
-        RectanglePixels::new(&irect)
-        
-    }
-
-    pub fn pixel_outline_iter(&self) -> RectangleOutlinePixels {
-        
-        let irect = crate::rectangle::rectangle_ivec2::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
-        RectangleOutlinePixels::new(&irect)
+        let irect = crate::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        RectanglePixels::new(&irect, outline)
         
     }
 }
 
 
+impl crate::Shape<UVec2> for RectangleUVec2 {
+    fn position(&self) -> UVec2 {
+        self.tl()
+    }
+
+    fn center(&self) -> UVec2 {
+        (self.tl + self.br) / 2
+    }
+
+    fn contains(&self, coord: UVec2) -> bool {
+        self.contains(coord)
+    }
+
+    fn pixel_iter(&self, outline: bool) -> impl Iterator<Item = IVec2> {
+        self.pixel_iter(outline)
+    }
+}

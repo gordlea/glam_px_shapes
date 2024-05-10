@@ -1,17 +1,33 @@
+{% set struct_name = name ~ glam_type -%}
 {% block content %}
 use std::ops::Range;
 
 use crate::glam::{{glam_type}};
-use crate::iters::rect_iter::{RectangleOutlinePixels, RectanglePixels};
+{% if glam_type != "IVec2" -%}
+use crate::glam::IVec2;
+{% endif -%}
+use crate::iters::rect_iter::RectanglePixels;
 
-
-pub struct {{ name }}{{glam_type}} {
-    pub(crate) tl: {{glam_type}},
-    pub(crate) br: {{glam_type}},
+{% if int_based != true -%}
+#[derive(Debug, Copy, Clone, Default)]
+{% else -%}
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+{% endif -%}
+pub struct {{ struct_name }} {
+    pub tl: {{glam_type}},
+    pub br: {{glam_type}},
+}
+{% if int_based != true %}
+impl PartialEq for {{ struct_name }} {
+    fn eq(&self, other: &crate::{{ struct_name }}) -> bool {
+        self.tl.abs_diff_eq(other.tl, f32::EPSILON) 
+            && self.br.abs_diff_eq(other.br, f32::EPSILON)
+    }
 }
 
-
-impl {{ name }}{{glam_type}} {
+impl Eq for {{ struct_name }} {}
+{% endif %}
+impl {{ struct_name }} {
     pub const fn new_const(tl: {{ glam_type }}, br: {{ glam_type }}) -> Self {
         Self { tl, br }
     }
@@ -48,6 +64,28 @@ impl {{ name }}{{glam_type}} {
         Self { tl: new_tl, br: new_br }
     }
 
+    pub fn from_points(points: Vec<{{ glam_type }}>) -> Self {
+        let mut tl = {{ glam_type }}::new({{ num_type }}::MAX, {{ num_type }}::MAX);
+        let mut br = {{ glam_type }}::new({{ num_type }}::MIN, {{ num_type }}::MIN);
+
+        for point in points {
+            tl = tl.min(point);
+            br = br.max(point);
+        }
+
+        Self { tl, br }
+    }
+    
+    // if both points are zero, the rectangle is zeroed
+    pub fn is_zeroed(&self) -> bool {
+        self.tl == {{ glam_type }}::ZERO && self.br == {{ glam_type }}::ZERO
+    }
+
+    pub fn add_point(&mut self, point: {{ glam_type }}) {
+        self.tl = self.tl.min(point);
+        self.br = self.br.max(point);
+    }
+
 
     pub fn tl(&self) -> {{ glam_type }} {
         self.tl
@@ -75,7 +113,7 @@ impl {{ name }}{{glam_type}} {
     }
 
     /// Returns the range of Y coordinates in this rectangle.
-    pub fn rows_limited(&self, limit: &Option<{{ name }}{{glam_type}}>) -> Range<{{num_type}}> {
+    pub fn rows_limited(&self, limit: &Option<{{ struct_name }}>) -> Range<{{num_type}}> {
         if let Some(limit) = limit {
             self.tl.y.max(limit.tl.y)..self.br.y.min(limit.br.y)
         } else {
@@ -96,24 +134,32 @@ impl {{ name }}{{glam_type}} {
         size.y == 0{{num_suffix}} || size.x == 0{{num_suffix}}
     }
 
-    pub fn pixel_iter(&self) -> RectanglePixels {
+    pub fn pixel_iter(&self, outline: bool) -> RectanglePixels {
         {% if num_type != "i32" %}
-        let irect = crate::rectangle::rectangle_ivec2::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
-        RectanglePixels::new(&irect)
+        let irect = crate::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        RectanglePixels::new(&irect, outline)
         {% else %}
-        RectanglePixels::new(self)
-        {% endif %}
-    }
-
-    pub fn pixel_outline_iter(&self) -> RectangleOutlinePixels {
-        {% if num_type != "i32" %}
-        let irect = crate::rectangle::rectangle_ivec2::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
-        RectangleOutlinePixels::new(&irect)
-        {% else %}
-        RectangleOutlinePixels::new(self)
+        RectanglePixels::new(self, outline)
         {% endif %}
     }
 }
 
 
+impl crate::Shape<{{ glam_type }}> for {{ struct_name}} {
+    fn position(&self) -> {{ glam_type }} {
+        self.tl()
+    }
+
+    fn center(&self) -> {{ glam_type }} {
+        (self.tl + self.br) / 2{% if int_based == false -%}.0{% endif %}
+    }
+
+    fn contains(&self, coord: {{ glam_type }}) -> bool {
+        self.contains(coord)
+    }
+
+    fn pixel_iter(&self, outline: bool) -> impl Iterator<Item = IVec2> {
+        self.pixel_iter(outline)
+    }
+}
 {% endblock %}

@@ -83,7 +83,9 @@ fn main() -> anyhow::Result<()> {
     let mut template_cfgs: Vec<TemplateCfg> = vec![];
 
     for shape in ["Rectangle", "Circle"] {
-        for (glam_type, num_type) in [("IVec2", "i32"), ("UVec2", "u32"), ("Vec2", "f32")] {
+        for (glam_type, num_class, num_size) in [("IVec2", "i", 32), ("UVec2", "u", 32), ("Vec2", "f", 32)] {
+            let int_based = num_class != "f";
+            let num_type = format!("{}{}", num_class, num_size);
             template_cfgs.push(TemplateCfg {
                 shape: shape.to_string(),
                 output_file_name: format!("{}_{}.rs", shape.to_ascii_lowercase(), glam_type.to_ascii_lowercase()),
@@ -94,12 +96,9 @@ fn main() -> anyhow::Result<()> {
                     "name": shape,
                     "glam_type": glam_type,
                     "num_type": num_type,
-                    "num_suffix": match num_type {
-                        "i32" => "",
-                        "u32" => "",
-                        "f32" => ".0",
-                        _ => "",
-                    }
+                    "int_based": int_based,
+                    "num_size": num_size, 
+                    "num_suffix": if int_based { "" } else { ".0" },
                 })).unwrap(),
                 ..Default::default()
             })

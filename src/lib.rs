@@ -1,14 +1,21 @@
 #![feature(const_trait_impl)]
 #![feature(exact_size_is_empty)]
-// pub mod rectangle_ivec2;
-// pub mod rectangle_vec2;
-// pub mod line_segment;
-// pub mod circle_ivec2;
-// pub mod polygon_ivec2;
-// pub mod iters;
-// pub mod shape;
-// pub mod glam;
-// pub mod rectangle;
+#![feature(const_fn_floating_point_arithmetic)]
 mod glam;
-pub mod rectangle;
+mod rectangle;
+mod circle;
 pub mod iters;
+
+pub use circle::*;
+use crate::glam::IVec2;
+pub use rectangle::*;
+
+
+
+pub trait Shape<T> {
+    fn position(&self) -> T;
+    fn center(&self) -> T;
+    fn contains(&self, coord: T) -> bool;
+    fn pixel_iter(&self, outline: bool) -> impl Iterator<Item = IVec2>;
+}
+
