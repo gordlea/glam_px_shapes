@@ -73,68 +73,6 @@ impl Iterator for RectanglePixels {
 }
 
 
-// /// Iterator over all IVec2s inside the rectangle.
-// #[derive(Clone,  Debug)]
-// pub struct RectangleOutlinePixels {
-//     scanlines: Scanlines,
-//     current_scanline: Scanline,
-// }
-
-// impl RectangleOutlinePixels {
-//     pub(crate) fn new(rectangle: &RectangleIVec2) -> Self {
-//         Self {
-//             scanlines: Scanlines::new(rectangle),
-//             current_scanline: Scanline::new_empty(0),
-//         }
-//     }
-
-// }
-
-// impl Iterator for RectangleOutlinePixels {
-//     type Item = IVec2;
-
-//     #[inline]
-//     fn next(&mut self) -> Option<Self::Item> {
-//         self.current_scanline.next().or_else(|| {
-//             self.current_scanline = self.scanlines.next()?;
-//             self.current_scanline.next()
-//         })
-//     }
-// }
-
-
-// #[derive(Clone, Eq, PartialEq, Hash, Debug)]
-// struct Scanlines {
-//     first_row: i32,
-//     rows: Range<i32>,
-//     columns: Range<i32>,
-// }
-
-// impl Scanlines {
-//     pub fn new(rect: &RectangleIVec2) -> Self {
-//         let rows = rect.rows();
-//         Self {
-//             first_row: rows.start,
-//             rows,
-//             columns: rect.columns(),
-//         }
-//     }
-// }
-
-// impl Iterator for Scanlines {
-//     type Item = Scanline;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         let y = self.rows.next()?;
-
-//         if y == self.first_row || y == self.rows.end - 1 { 
-//             return Some(Scanline::new(y, self.columns.clone(), false));
-//         } else {
-//             return Some(Scanline::new(y, self.columns.clone(), true));
-//         }
-
-//     }
-// }
 
 
 #[cfg(test)]

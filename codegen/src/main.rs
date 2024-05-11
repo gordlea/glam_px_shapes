@@ -8,9 +8,7 @@ use std::{collections::HashMap, default, vec};
 
 use anyhow::Context;
 use serde_json::{json, value::{to_value, Value}};
-use std::error::Error;
 use tera::{Result, Tera};
-use rustfmt_wrapper::rustfmt;
 
 const PROJECT_ROOT: &str = "..";
 
@@ -47,8 +45,6 @@ struct TemplateCfg {
     pub shape: String,
     pub template_file_name: String,
     pub output_file_name: String,
-    pub template_dir: String,
-    pub output_dir: String,
     pub context: tera::Context,
 }
 
@@ -58,8 +54,6 @@ impl default::Default for TemplateCfg {
             shape: "Rectangle".to_string(),
             template_file_name: "somefile.rs.tera".to_string(),
             output_file_name: "somefile.rs".to_string(),
-            template_dir: "./".to_string(),
-            output_dir: "../src".to_string(),
             context: tera::Context::new(),
         }
     }
@@ -68,16 +62,6 @@ impl default::Default for TemplateCfg {
 fn main() -> anyhow::Result<()> {
     let repo = git2::Repository::open(PROJECT_ROOT).context("failed to open git repo")?;
     let workdir = repo.workdir().unwrap();
-
-    let mut context = tera::Context::new();
-    context.insert("message", &"Bob");
-
-    let ctx = tera::Context::from_value(json!({
-        "name": "Rectangle",
-    }));
-
-    // let shapes = vec!["rectangle", "circle"];
-    // let glam_types = vec!["IVec2", "UVec2", "Vec2"];
 
 
     let mut template_cfgs: Vec<TemplateCfg> = vec![];
@@ -90,8 +74,6 @@ fn main() -> anyhow::Result<()> {
                 shape: shape.to_string(),
                 output_file_name: format!("{}_{}.rs", shape.to_ascii_lowercase(), glam_type.to_ascii_lowercase()),
                 template_file_name: format!("{}.rs.tera", shape.to_ascii_lowercase()),
-                template_dir: "./".to_string(),
-                output_dir: "../src/rectangle".to_string(),
                 context: tera::Context::from_value(json!({
                     "name": shape,
                     "glam_type": glam_type,
@@ -106,31 +88,13 @@ fn main() -> anyhow::Result<()> {
     }
     
     for tcfg in template_cfgs {
-        let mut output_str = generate_file(&TEMPLATES, &tcfg.context, tcfg.template_file_name.as_str())?;
-        // output_str = rustfmt(&output_str).context("rustfmt failed")?;
-        println!("{:?}", output_str);
-        // let output_path = format!("{}/{}", tcfg.output_dir, tcfg.output_file_name);
+        let output_str = generate_file(&TEMPLATES, &tcfg.context, tcfg.template_file_name.as_str())?;
+        // println!("{:?}", output_str);
         let output_path = workdir.join("src").join(tcfg.shape.to_ascii_lowercase()).join(tcfg.output_file_name);
         std::fs::write(&output_path, output_str)
             .with_context(|| format!("failed to write {:?}", output_path))?;
 
     }
 
-
-
-    // A one off template
-    // Tera::one_off("hello", &Context::new(), true).unwrap();
-
-    // match TEMPLATES.render("rectangle.rs.tera", &context) {
-    //     Ok(s) => println!("{:?}", s),
-    //     Err(e) => {
-    //         println!("Error: {}", e);
-    //         let mut cause = e.source();
-    //         while let Some(e) = cause {
-    //             println!("Reason: {}", e);
-    //             cause = e.source();
-    //         }
-    //     }
-    // };
     Ok(())
 }

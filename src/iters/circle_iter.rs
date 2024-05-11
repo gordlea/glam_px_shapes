@@ -91,8 +91,6 @@ impl Iterator for Scanlines {
 
 #[cfg(test)]
 mod test {
-    use crate::RectangleIVec2;
-
     use super::*;
 
     #[test]
