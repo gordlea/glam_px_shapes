@@ -1,16 +1,16 @@
 
 use std::ops::Range;
 
-use crate::glam::IVec2;
+use glam::IVec2;
 use crate::iters::rect_iter::RectanglePixels;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
-pub struct RectangleIVec2 {
+pub struct Rectangle {
     pub tl: IVec2,
     pub br: IVec2,
 }
 
-impl RectangleIVec2 {
+impl Rectangle {
     pub const fn new_const(tl: IVec2, br: IVec2) -> Self {
         Self { tl, br }
     }
@@ -27,7 +27,7 @@ impl RectangleIVec2 {
         Self { tl: ttl, br: tbr }
     }
 
-    pub fn new_with_limits(tl: IVec2, br: IVec2, limits: RectangleIVec2) -> Self {
+    pub fn new_with_limits(tl: IVec2, br: IVec2, limits: Rectangle) -> Self {
         let mut new_tl = tl;
         if tl.x < limits.tl.x {
             new_tl.x = limits.tl.x;
@@ -90,7 +90,7 @@ impl RectangleIVec2 {
         self.tl.cmple(coord).all() && self.br.cmpge(coord).all()
     }    
 
-    pub fn overlaps(&self, other: &RectangleIVec2) -> bool {
+    pub fn overlaps(&self, other: &Rectangle) -> bool {
         self.tl.x < other.br.x && self.br.x > other.tl.x && self.tl.y < other.br.y && self.br.y > other.tl.y
     }
 
@@ -100,7 +100,7 @@ impl RectangleIVec2 {
     }
 
     /// Returns the range of Y coordinates in this rectangle.
-    pub fn rows_limited(&self, limit: &Option<RectangleIVec2>) -> Range<i32> {
+    pub fn rows_limited(&self, limit: &Option<Rectangle>) -> Range<i32> {
         if let Some(limit) = limit {
             self.tl.y.max(limit.tl.y)..self.br.y.min(limit.br.y)
         } else {
@@ -129,7 +129,7 @@ impl RectangleIVec2 {
 }
 
 
-impl crate::Shape<IVec2> for RectangleIVec2 {
+impl crate::Shape<IVec2> for Rectangle {
     fn position(&self) -> IVec2 {
         self.tl()
     }

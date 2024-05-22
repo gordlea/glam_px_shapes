@@ -1,8 +1,7 @@
 use std::ops::Range;
 
-use crate::glam::IVec2;
-
-use crate::{circle_ivec2::CircleIVec2, RectangleIVec2};
+use crate::ivec2;
+use glam::IVec2;
 
 use super::common::Scanline;
 
@@ -13,7 +12,7 @@ pub struct CirclePoints {
 }
 
 impl CirclePoints {
-    pub(crate) fn new(circle: &CircleIVec2, outline: bool) -> Self {
+    pub(crate) fn new(circle: &ivec2::Circle, outline: bool) -> Self {
         Self {
             scanlines: Scanlines::new(circle, outline),
             current_scanline: Scanline::new_empty(0),
@@ -39,11 +38,11 @@ struct Scanlines {
     columns: Range<i32>,
     center_2x: IVec2,
     threshold: i32,
-    limits: Option<RectangleIVec2>,
+    limits: Option<ivec2::Rectangle>,
 }
 
 impl Scanlines {
-    pub fn new(circle: &CircleIVec2, outline: bool) -> Self {
+    pub fn new(circle: &ivec2::Circle, outline: bool) -> Self {
         let bounding_box = circle.bounding_box();
         let limits = circle.limits;
         Self {
@@ -95,7 +94,7 @@ mod test {
 
     #[test]
     fn test_iter() {
-        let circle = CircleIVec2::new(IVec2::new(10, 10), 3);
+        let circle = ivec2::Circle::new(IVec2::new(10, 10), 3);
         let points: Vec<IVec2> = circle.pixel_iter(false).collect();
 
         // assert_eq!(points.len(), 32);
@@ -141,10 +140,10 @@ mod test {
 
     // #[test]
     // fn test_iter_with_limits() {
-    //     let circle = CircleIVec2::new_with_limits(
+    //     let circle = ivec2::Circle::new_with_limits(
     //         IVec2::new(10, 10), 
     //         3, 
-    //         RectangleIVec2::new(IVec2::new(10, 10), IVec2::new(20, 20))
+    //         ivec2::Rectangle::new(IVec2::new(10, 10), IVec2::new(20, 20))
     //     );
     //     let points: Vec<IVec2> = circle.pixel_iter(false).collect();
 

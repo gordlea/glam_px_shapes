@@ -1,10 +1,10 @@
-{% set struct_name = name ~ glam_type -%}
+{% set struct_name = name -%}
 {% block content %}
 use std::ops::Range;
 
-use crate::glam::{{glam_type}};
+use glam::{{glam_type}};
 {% if glam_type != "IVec2" -%}
-use crate::glam::IVec2;
+use glam::IVec2;
 {% endif -%}
 use crate::iters::rect_iter::RectanglePixels;
 
@@ -19,7 +19,7 @@ pub struct {{ struct_name }} {
 }
 {% if int_based != true %}
 impl PartialEq for {{ struct_name }} {
-    fn eq(&self, other: &crate::{{ struct_name }}) -> bool {
+    fn eq(&self, other: &{{ struct_name }}) -> bool {
         self.tl.abs_diff_eq(other.tl, f32::EPSILON) 
             && self.br.abs_diff_eq(other.br, f32::EPSILON)
     }
@@ -44,7 +44,7 @@ impl {{ struct_name }} {
         Self { tl: ttl, br: tbr }
     }
 
-    pub fn new_with_limits(tl: {{ glam_type }}, br: {{ glam_type }}, limits: Rectangle{{ glam_type }}) -> Self {
+    pub fn new_with_limits(tl: {{ glam_type }}, br: {{ glam_type }}, limits: Rectangle) -> Self {
         let mut new_tl = tl;
         if tl.x < limits.tl.x {
             new_tl.x = limits.tl.x;
@@ -140,7 +140,7 @@ impl {{ struct_name }} {
 
     pub fn pixel_iter(&self, outline: bool) -> RectanglePixels {
         {% if num_type != "i32" %}
-        let irect = crate::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        let irect = crate::ivec2::Rectangle::new(self.tl.as_ivec2(), self.br.as_ivec2());
         RectanglePixels::new(&irect, outline)
         {% else %}
         RectanglePixels::new(self, outline)

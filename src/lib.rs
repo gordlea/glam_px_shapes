@@ -1,14 +1,15 @@
 #![feature(const_trait_impl)]
 #![feature(exact_size_is_empty)]
 #![feature(const_fn_floating_point_arithmetic)]
-mod glam;
-mod rectangle;
-mod circle;
+pub mod ivec2;
+pub mod uvec2;
+pub mod vec2;
 pub mod iters;
 
-pub use circle::*;
-use crate::glam::IVec2;
-pub use rectangle::*;
+// pub use circle::*;
+use glam::IVec2;
+// pub use rectangle::*;
+
 
 
 

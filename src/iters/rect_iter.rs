@@ -1,8 +1,9 @@
 use std::ops::Range;
 
-use crate::glam::IVec2;
+use glam::IVec2;
 
-use crate::RectangleIVec2;
+use crate::ivec2;
+
 
 /// Iterator over all IVec2s inside the rectangle.
 #[derive(Clone, Eq, PartialEq, Hash, Debug)]
@@ -15,7 +16,7 @@ pub struct RectanglePixels {
 }
 
 impl RectanglePixels {
-    pub(crate) fn new(rectangle: &RectangleIVec2, outline: bool) -> Self {
+    pub(crate) fn new(rectangle: &ivec2::Rectangle, outline: bool) -> Self {
         // eprintln!("RectanglePixels rect: {:?}, outline: {:?}", rectangle, outline);
         // Return `Self::empty` for all zero sized rectangles.
         // The iterator would behave correctly without this check, but would loop unnecessarily for
@@ -81,7 +82,7 @@ mod test {
 
     #[test]
     fn rectangle_pixels() {
-        let rect = RectangleIVec2::new(IVec2::new(0, 0), IVec2::new(2, 2));
+        let rect = ivec2::Rectangle::new(IVec2::new(0, 0), IVec2::new(2, 2));
         let pixels: Vec<IVec2> = RectanglePixels::new(&rect, false).collect();
         assert_eq!(pixels, vec![
             IVec2::new(0, 0),
@@ -91,10 +92,10 @@ mod test {
         ]);
     }
 
-    // RectanglePixels rect: RectangleIVec2 { tl: IVec2(125, 34), br: IVec2(129, 39) }, outline: true
+    // RectanglePixels rect: ivec2::Rectangle { tl: IVec2(125, 34), br: IVec2(129, 39) }, outline: true
     #[test]
     fn outline_y_start_not_zero() {
-        let rect = RectangleIVec2::new(IVec2::new(0, 34), IVec2::new(4, 39));
+        let rect = ivec2::Rectangle::new(IVec2::new(0, 34), IVec2::new(4, 39));
         let pixels: Vec<IVec2> = RectanglePixels::new(&rect, true).collect();
         assert_eq!(pixels, vec![
             IVec2::new(0, 34),
@@ -122,7 +123,7 @@ mod test {
 
     #[test]
     fn outline_x_start_not_zero() {
-        let rect = RectangleIVec2::new(IVec2::new(10, 0), IVec2::new(14, 4));
+        let rect = ivec2::Rectangle::new(IVec2::new(10, 0), IVec2::new(14, 4));
         let pixels: Vec<IVec2> = RectanglePixels::new(&rect, true).collect();
         assert_eq!(pixels, vec![
             IVec2::new(10, 0),
@@ -148,7 +149,7 @@ mod test {
 
     #[test]
     fn rectangle_outline_pixels() {
-        let rect = RectangleIVec2::new(IVec2::new(0, 0), IVec2::new(4, 4));
+        let rect = ivec2::Rectangle::new(IVec2::new(0, 0), IVec2::new(4, 4));
         let pixels: Vec<IVec2> = RectanglePixels::new(&rect, true).collect();
         // // top row
         // assert!(pixels.contains(&IVec2::new(0, 0)));
@@ -219,7 +220,7 @@ mod test {
 
 //     #[test]
 //     fn rectangle_outline_pixels_vs() {
-//         let rect = RectangleIVec2::new(IVec2::new(0, 0), IVec2::new(4, 4));
+//         let rect = ivec2::Rectangle::new(IVec2::new(0, 0), IVec2::new(4, 4));
 //         let pixels: Vec<IVec2> = RectangleOutlinePixels::new(&rect).collect();
 //         let pixels2: Vec<IVec2> = RectanglePixels::new(&rect, true).collect();
 //         // top row

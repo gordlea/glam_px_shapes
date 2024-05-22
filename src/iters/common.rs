@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::glam::IVec2;
+use glam::IVec2;
 
 /// Scanline.
 #[derive(Debug, Clone)]

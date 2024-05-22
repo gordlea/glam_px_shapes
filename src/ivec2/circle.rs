@@ -1,15 +1,16 @@
 
-use crate::glam::IVec2;
-use crate::{ iters::circle_iter::CirclePoints, RectangleIVec2 };
+use glam::IVec2;
+use crate::iters::circle_iter::CirclePoints;
+use super::rectangle::Rectangle;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
-pub struct CircleIVec2 {
+pub struct Circle {
     pub(crate) pos: IVec2,
     pub(crate) radius: i32,
-    pub(crate) limits: Option<RectangleIVec2>,
+    pub(crate) limits: Option<Rectangle>,
 }
 
-impl CircleIVec2 {
+impl Circle {
     pub const fn new(pos: IVec2, radius: i32) -> Self {
         Self {
             pos,
@@ -19,20 +20,20 @@ impl CircleIVec2 {
     }
 
     /// Returns the bounding box of the circle, disregarding the limits.
-    pub fn bounding_box(&self) -> RectangleIVec2 {
+    pub fn bounding_box(&self) -> Rectangle {
         let r = IVec2::splat(self.radius);
         let tl = self.pos - r;
         let br = self.pos + r;
-        RectangleIVec2::new(tl, br)
+        Rectangle::new(tl, br)
     }
 
     // /// Returns the bounding box of the circle, respecting limits.
-    pub fn limited_bounding_box(&self) -> RectangleIVec2 {
+    pub fn limited_bounding_box(&self) -> Rectangle {
         if let Some(limits) = self.limits {
             let r = IVec2::splat(self.radius);
             let tl = (self.pos - r).max(limits.tl);
             let br = (self.pos + r).min(limits.br);
-            RectangleIVec2::new(tl, br)
+            Rectangle::new(tl, br)
         } else {
             self.bounding_box()
         }
@@ -55,7 +56,7 @@ impl CircleIVec2 {
         diameter_to_threshold(self.radius * 2)
     }
 
-    pub const fn new_with_limits(pos: IVec2, radius: i32, limits: RectangleIVec2) -> Self {
+    pub const fn new_with_limits(pos: IVec2, radius: i32, limits: Rectangle) -> Self {
         Self {
             pos,
             radius,
@@ -72,19 +73,19 @@ impl CircleIVec2 {
     
 
     
-    pub fn as_circle_vec2(&self) -> crate::circle::CircleVec2 {
-        crate::circle::CircleVec2::new(self.pos.as_vec2(), self.radius as f32)
+    pub fn as_circle_vec2(&self) -> crate::vec2::Circle {
+        crate::vec2::Circle::new(self.pos.as_vec2(), self.radius as f32)
     }
     
 
     
-    pub fn as_circle_uvec2(&self) -> crate::circle::CircleUVec2 {
-        crate::circle::CircleUVec2::new(self.pos.as_uvec2(), self.radius as u32)
+    pub fn as_circle_uvec2(&self) -> crate::uvec2::Circle {
+        crate::uvec2::Circle::new(self.pos.as_uvec2(), self.radius as u32)
     }
     
 }
 
-impl crate::Shape<IVec2> for CircleIVec2 {
+impl crate::Shape<IVec2> for Circle {
     fn position(&self) -> IVec2 {
         self.pos
     }

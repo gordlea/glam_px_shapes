@@ -1,0 +1,48 @@
+use glam::{{ glam_type }};
+{% if glam_type != "IVec2" -%}
+use glam::IVec2;
+{% endif -%}
+use crate::iters::line_iter::{LineIter, LineDrawAlgo};
+
+
+{% if int_based != true -%}
+#[derive(Debug, Copy, Clone, Default)]
+{% else -%}
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+{% endif -%}
+pub struct LineSegment {
+    pub start: {{ glam_type }},
+    pub end: {{ glam_type }},
+}
+
+impl LineSegment {
+    pub fn new(start: {{ glam_type }}, end: {{ glam_type }}) -> Self {
+        Self { 
+            start, 
+            end 
+        }
+    }
+
+    /// Create a new line segment from a start point, a direction and a length
+    pub fn new_from_length(start: {{ glam_type }}, dir: {{ glam_type }}, length: {{ num_type }}) -> Self {
+        Self { start, end: start + dir * length }
+    }
+
+    pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = IVec2> {
+        {% if num_type != "i32" -%}
+        let iseg = crate::ivec2::LineSegment::new(self.start.as_ivec2(), self.end.as_ivec2());
+        LineIter::new_from_segment(iseg, draw_mode)
+        {% else -%}
+        LineIter::new_from_segment(*self, draw_mode)
+        {% endif %}
+    }
+
+    pub fn length (&self) -> {{ num_type }} {
+        {% if int_based -%}
+            self.start.as_vec2().distance_squared(self.end.as_vec2()).sqrt() as {{ num_type }}
+        {% else -%}
+            self.start.distance_squared(self.end).sqrt()
+        {% endif %}
+    }
+}
+

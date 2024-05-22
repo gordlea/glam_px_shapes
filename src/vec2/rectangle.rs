@@ -1,26 +1,26 @@
 
 use std::ops::Range;
 
-use crate::glam::Vec2;
-use crate::glam::IVec2;
+use glam::Vec2;
+use glam::IVec2;
 use crate::iters::rect_iter::RectanglePixels;
 
 #[derive(Debug, Copy, Clone, Default)]
-pub struct RectangleVec2 {
+pub struct Rectangle {
     pub tl: Vec2,
     pub br: Vec2,
 }
 
-impl PartialEq for RectangleVec2 {
-    fn eq(&self, other: &crate::RectangleVec2) -> bool {
+impl PartialEq for Rectangle {
+    fn eq(&self, other: &Rectangle) -> bool {
         self.tl.abs_diff_eq(other.tl, f32::EPSILON) 
             && self.br.abs_diff_eq(other.br, f32::EPSILON)
     }
 }
 
-impl Eq for RectangleVec2 {}
+impl Eq for Rectangle {}
 
-impl RectangleVec2 {
+impl Rectangle {
     pub const fn new_const(tl: Vec2, br: Vec2) -> Self {
         Self { tl, br }
     }
@@ -37,7 +37,7 @@ impl RectangleVec2 {
         Self { tl: ttl, br: tbr }
     }
 
-    pub fn new_with_limits(tl: Vec2, br: Vec2, limits: RectangleVec2) -> Self {
+    pub fn new_with_limits(tl: Vec2, br: Vec2, limits: Rectangle) -> Self {
         let mut new_tl = tl;
         if tl.x < limits.tl.x {
             new_tl.x = limits.tl.x;
@@ -100,7 +100,7 @@ impl RectangleVec2 {
         self.tl.cmple(coord).all() && self.br.cmpge(coord).all()
     }    
 
-    pub fn overlaps(&self, other: &RectangleVec2) -> bool {
+    pub fn overlaps(&self, other: &Rectangle) -> bool {
         self.tl.x < other.br.x && self.br.x > other.tl.x && self.tl.y < other.br.y && self.br.y > other.tl.y
     }
 
@@ -110,7 +110,7 @@ impl RectangleVec2 {
     }
 
     /// Returns the range of Y coordinates in this rectangle.
-    pub fn rows_limited(&self, limit: &Option<RectangleVec2>) -> Range<f32> {
+    pub fn rows_limited(&self, limit: &Option<Rectangle>) -> Range<f32> {
         if let Some(limit) = limit {
             self.tl.y.max(limit.tl.y)..self.br.y.min(limit.br.y)
         } else {
@@ -133,14 +133,14 @@ impl RectangleVec2 {
 
     pub fn pixel_iter(&self, outline: bool) -> RectanglePixels {
         
-        let irect = crate::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        let irect = crate::ivec2::Rectangle::new(self.tl.as_ivec2(), self.br.as_ivec2());
         RectanglePixels::new(&irect, outline)
         
     }
 }
 
 
-impl crate::Shape<Vec2> for RectangleVec2 {
+impl crate::Shape<Vec2> for Rectangle {
     fn position(&self) -> Vec2 {
         self.tl()
     }

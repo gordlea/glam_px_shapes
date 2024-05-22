@@ -1,17 +1,17 @@
 
 use std::ops::Range;
 
-use crate::glam::UVec2;
-use crate::glam::IVec2;
+use glam::UVec2;
+use glam::IVec2;
 use crate::iters::rect_iter::RectanglePixels;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
-pub struct RectangleUVec2 {
+pub struct Rectangle {
     pub tl: UVec2,
     pub br: UVec2,
 }
 
-impl RectangleUVec2 {
+impl Rectangle {
     pub const fn new_const(tl: UVec2, br: UVec2) -> Self {
         Self { tl, br }
     }
@@ -28,7 +28,7 @@ impl RectangleUVec2 {
         Self { tl: ttl, br: tbr }
     }
 
-    pub fn new_with_limits(tl: UVec2, br: UVec2, limits: RectangleUVec2) -> Self {
+    pub fn new_with_limits(tl: UVec2, br: UVec2, limits: Rectangle) -> Self {
         let mut new_tl = tl;
         if tl.x < limits.tl.x {
             new_tl.x = limits.tl.x;
@@ -91,7 +91,7 @@ impl RectangleUVec2 {
         self.tl.cmple(coord).all() && self.br.cmpge(coord).all()
     }    
 
-    pub fn overlaps(&self, other: &RectangleUVec2) -> bool {
+    pub fn overlaps(&self, other: &Rectangle) -> bool {
         self.tl.x < other.br.x && self.br.x > other.tl.x && self.tl.y < other.br.y && self.br.y > other.tl.y
     }
 
@@ -101,7 +101,7 @@ impl RectangleUVec2 {
     }
 
     /// Returns the range of Y coordinates in this rectangle.
-    pub fn rows_limited(&self, limit: &Option<RectangleUVec2>) -> Range<u32> {
+    pub fn rows_limited(&self, limit: &Option<Rectangle>) -> Range<u32> {
         if let Some(limit) = limit {
             self.tl.y.max(limit.tl.y)..self.br.y.min(limit.br.y)
         } else {
@@ -124,14 +124,14 @@ impl RectangleUVec2 {
 
     pub fn pixel_iter(&self, outline: bool) -> RectanglePixels {
         
-        let irect = crate::RectangleIVec2::new(self.tl.as_ivec2(), self.br.as_ivec2());
+        let irect = crate::ivec2::Rectangle::new(self.tl.as_ivec2(), self.br.as_ivec2());
         RectanglePixels::new(&irect, outline)
         
     }
 }
 
 
-impl crate::Shape<UVec2> for RectangleUVec2 {
+impl crate::Shape<UVec2> for Rectangle {
     fn position(&self) -> UVec2 {
         self.tl()
     }
