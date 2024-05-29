@@ -1,5 +1,3 @@
-use std::default;
-
 use glam::{IVec2, Vec2};
 use strum::EnumDiscriminants;
 
@@ -32,22 +30,6 @@ impl LineIter {
                     })
                 }
             }
-            // LineDrawAlgo::Bresenham => {
-            //     let octant = Octant::new(ls.start, ls.end);
-            //     let start = octant.to(ls.start);
-            //     let end = octant.to(ls.end);
-            //     let delta = end - start;
-
-            //     LineIter {
-            //         impl_iter: LineIterImpl::Bresenham(BresenhamParams {
-            //             point: start,
-            //             end_x: end.x,
-            //             delta,
-            //             error: delta.y - delta.x,
-            //             octant,
-            //         })
-            //     }
-            // },
             LineDrawAlgo::Bresenham => {
                 let dx = i32::abs(ls.end.x - ls.start.x);
                 let dy = i32::abs(ls.end.y - ls.start.y);
@@ -100,14 +82,6 @@ pub struct WalkGridParams {
     n: Vec2,
 }
 
-// #[derive(Debug, Copy, Clone)]
-// pub struct BresenhamParams {
-//     point: IVec2,
-//     end_x: i32,
-//     delta: IVec2,
-//     error: i32,
-//     octant: Octant,
-// }
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct BresenhamParams {
@@ -129,7 +103,6 @@ pub struct BresenhamParams {
 #[strum_discriminants(name(LineDrawAlgo))]
 pub(crate) enum LineIterImpl {
     WalkGrid(WalkGridParams),
-    // Bresenham(BresenhamParams),
     Bresenham(BresenhamParams),
 }
 
@@ -155,23 +128,6 @@ impl Iterator for LineIterImpl {
                     None
                 }
             }
-            // LineIterImpl::Bresenham(params) => {
-            //     if params.point.x <= params.end_x {
-            //         let point = params.octant.from(params.point);
-        
-            //         if params.error >= 0 {
-            //             params.point.y += 1;
-            //             params.error -= params.delta.x;
-            //         }
-        
-            //         params.point.x += 1;
-            //         params.error += params.delta.y;
-        
-            //         Some(point)
-            //     } else {
-            //         None
-            //     }
-            // },
             LineIterImpl::Bresenham(params) => {
                 if params.done {
                     return None;
@@ -200,148 +156,6 @@ impl Iterator for LineIterImpl {
         }
     }
 }
-
-
-
-
-
-
-
-
-// /// A simple octant struct for transforming line points.
-// #[derive(Debug, Copy, Clone)]
-// pub struct Octant {
-//     value: u8,
-// }
-
-// impl Octant {
-//     #[inline]
-//     /// Get the relevant octant from a start and end point.
-//     pub fn new(start: IVec2, end: IVec2) -> Self
-//     {
-//         let mut value = 0;
-//         let mut delta = end - start;
-
-//         if delta.y < 0 {
-//             delta = -delta;
-//             value += 4;
-//         }
-
-//         if delta.x < 0 {
-
-//             std::mem::swap(&mut delta.x, &mut delta.y);
-//             delta.y = -delta.y;
-
-
-//             value += 2
-//         }
-
-//         if delta.x < delta.y {
-//             value += 1
-//         }
-
-//         Self { value }
-//     }
-
-//     /// Convert a point to its position in the octant.
-//     #[inline]
-//     pub fn to(&self, point: IVec2) -> IVec2 {
-//         match self.value {
-//             0 => point,
-//             1 => IVec2::new(point.y, point.x),
-//             2 => IVec2::new(point.y, -point.x),
-//             3 => IVec2::new(-point.x, point.y),
-//             4 => IVec2::new(-point.x, -point.y),
-//             5 => IVec2::new(-point.y, -point.x),
-//             6 => IVec2::new(-point.y, point.x),
-//             7 => IVec2::new(point.x, -point.y),
-//             _ => unreachable!(),
-//         }
-//     }
-
-//     /// Convert a point from its position in the octant.
-//     #[inline]
-//     pub fn from(&self, point: IVec2) -> IVec2 {
-//         match self.value {
-//             0 => point,
-//             1 => IVec2::new(point.y, point.x),
-//             2 => IVec2::new(-point.y, point.x),
-//             3 => IVec2::new(-point.x, point.y),
-//             4 => IVec2::new(-point.x, -point.y),
-//             5 => IVec2::new(-point.y, -point.x),
-//             6 => IVec2::new(point.y, -point.x),
-//             7 => IVec2::new(point.x, -point.y),
-//             _ => unreachable!(),
-//         }
-//     }
-// }
-
-
-#[derive(Debug, Copy, Clone, Default)]
-struct Octant2(u8);
-
-impl Octant2 {
-    /// adapted from http://codereview.stackexchange.com/a/95551
-    #[inline]
-    fn from_points(start: IVec2, end: IVec2) -> Octant2 {
-
-        let mut d = end - start;
-
-        let mut octant = 0;
-
-        if d.y < 0 {
-            d *= d.signum();
-            // dx = -dx;
-            // dy = -dy;
-            octant += 4;
-        }
-
-        if d.x < 0 {
-            let tmp = d.x;
-            d.x = d.y;
-            d.y = -tmp;
-            octant += 2
-        }
-
-        if d.x < d.y {
-            octant += 1
-        }
-
-        Octant2(octant)
-    }
-
-    #[inline]
-    fn to_octant0(&self, p: IVec2) -> IVec2 {
-        match self.0 {
-            0 => p,
-            1 => IVec2::new(p.y, p.x),
-            2 => IVec2::new(p.y, -p.x),
-            3 => IVec2::new(-p.x, p.y),
-            4 => IVec2::new(-p.x, -p.y),
-            5 => IVec2::new(-p.y, -p.x),
-            6 => IVec2::new(-p.y, p.x),
-            7 => IVec2::new(p.x, -p.y),
-            _ => unreachable!(),
-        }
-    }
-
-    #[inline]
-    fn from_octant0(&self, p: IVec2) -> IVec2 {
-        match self.0 {
-            0 => p,
-            1 => IVec2::new(p.y, p.x),
-            2 => IVec2::new(-p.y, p.x),
-            3 => IVec2::new(-p.x, p.y),
-            4 => IVec2::new(-p.x, -p.y),
-            5 => IVec2::new(-p.y, -p.x),
-            6 => IVec2::new(p.y, -p.x),
-            7 => IVec2::new(p.x, -p.y),
-            _ => unreachable!(),
-        }
-    }
-}
-
-
 
 
 #[cfg(test)]
@@ -476,7 +290,7 @@ mod test {
     #[test]
     fn test_pixel_iterator_going_left() {
         let ls = vec2::LineSegment::new(Vec2::new(0.0, 0.0), Vec2::new(-1.0, 10.0));
-        let mut iter = ls.pixel_iter(LineDrawAlgo::Bresenham);
+        let iter = ls.pixel_iter(LineDrawAlgo::Bresenham);
 
         let results: Vec<IVec2> = iter.collect();
         assert_eq!(results, vec![
