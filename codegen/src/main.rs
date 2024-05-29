@@ -4,7 +4,7 @@ extern crate tera;
 extern crate lazy_static;
 extern crate serde_json;
 
-use std::{collections::HashMap, default, path::PathBuf, vec};
+use std::{collections::HashMap, path::PathBuf, vec};
 use heck::ToSnakeCase;
 use anyhow::Context;
 use serde_json::{json, value::{to_value, Value}};
@@ -55,7 +55,7 @@ fn generate_file(
 
 #[derive(Debug, Clone, Default)]
 struct ShapeTemplateCfg {
-    pub shape: String,
+    // pub shape: String,
     pub output_file_path: PathBuf,
     pub template_file_name: String,
     pub context: tera::Context,
@@ -104,7 +104,7 @@ fn main() -> anyhow::Result<()> {
             let int_based = num_class != "f";
             let num_type = format!("{}{}", num_class, num_size);
             template_cfgs.push(ShapeTemplateCfg {
-                shape: shape.to_string(),
+                // shape: shape.to_string(),
                 // output_file_name: format!("{}_{}.rs", shape.to_ascii_lowercase(), glam_type.to_ascii_lowercase()),
                 template_file_name: format!("{}.rs.tera", shape.to_snake_case()),
                 output_file_path: workdir.join("src")
