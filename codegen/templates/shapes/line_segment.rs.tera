@@ -2,8 +2,11 @@ use glam::{{ glam_type }};
 {% if glam_type != "IVec2" -%}
 use glam::IVec2;
 {% endif -%}
-use crate::iters::line_iter::{LineIter, LineDrawAlgo};
-
+{% if int_based == true -%}
+use crate::ivec2::{LineIter, LineDrawAlgo};
+{% else -%}
+use crate::vec2::{LineIter, LineDrawAlgo};
+{% endif -%}
 
 {% if int_based != true -%}
 #[derive(Debug, Copy, Clone, Default)]
@@ -28,14 +31,20 @@ impl LineSegment {
         Self { start, end: start + dir * length }
     }
 
+    {% if int_based -%}
     pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = IVec2> {
-        {% if num_type != "i32" -%}
+    {% else -%}
+    pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = Vec2> {
+    {% endif -%}
+        {% if glam_type == "UVec2" %}
         let iseg = crate::ivec2::LineSegment::new(self.start.as_ivec2(), self.end.as_ivec2());
         LineIter::new_from_segment(iseg, draw_mode)
         {% else -%}
         LineIter::new_from_segment(*self, draw_mode)
         {% endif %}
     }
+
+    
 
     pub fn length (&self) -> {{ num_type }} {
         {% if int_based -%}
@@ -44,5 +53,29 @@ impl LineSegment {
             self.start.distance_squared(self.end).sqrt()
         {% endif %}
     }
+    {% if glam_type != "Vec2" %}
+    pub fn as_vec2(&self) -> crate::vec2::LineSegment {
+        crate::vec2::LineSegment {
+            start: self.start.as_vec2(),
+            end: self.end.as_vec2()
+        }
+    }
+    {% endif %}
+    {% if glam_type != "IVec2" %}
+    pub fn as_ivec2(&self) -> crate::ivec2::LineSegment {
+        crate::ivec2::LineSegment {
+            start: self.start.as_ivec2(),
+            end: self.end.as_ivec2()
+        }
+    }
+    {% endif -%}    
+    {% if glam_type != "UVec2" %}
+    pub fn as_uvec2(&self) -> crate::uvec2::LineSegment {
+        crate::uvec2::LineSegment {
+            start: self.start.as_uvec2(),
+            end: self.end.as_uvec2()
+        }
+    }
+    {% endif -%}
 }
 
