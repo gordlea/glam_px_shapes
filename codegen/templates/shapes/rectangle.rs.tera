@@ -35,7 +35,22 @@ impl {{ struct_name }} {
     pub fn new_on_origin(size: {{ glam_type }}) -> Self {
         Self { tl: {{ glam_type }}::ZERO, br: size }
     }
+    #[cfg(feature = "nightly")]
+    pub const fn new(tl: {{ glam_type }}, br: {{ glam_type }}) -> Self {
+        let ttl = {{ glam_type }}::new(
+            if tl.x < br.x { tl.x } else { br.x },
+            if tl.y < br.y { tl.y } else { br.y }
+        );
 
+        let tbr = {{ glam_type }}::new(
+            if tl.x > br.x { tl.x } else { br.x },
+            if tl.y > br.y { tl.y } else { br.y }
+        );
+
+        Self { tl: ttl, br: tbr }
+    }
+
+    #[cfg(not(feature = "nightly"))]
     pub fn new(tl: {{ glam_type }}, br: {{ glam_type }}) -> Self {
 
         let ttl = {{ glam_type }}::new(tl.x.min(br.x), tl.y.min(br.y));
@@ -167,3 +182,24 @@ impl crate::Shape<{{ glam_type }}> for {{ struct_name}} {
     }
 }
 {% endblock %}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let mut rect = Rectangle::new({{glam_type}}::new(1{{num_suffix}}, 2{{num_suffix}}), {{glam_type}}::new(3{{num_suffix}}, 4{{num_suffix}}));
+        assert_eq!(rect.tl, {{glam_type}}::new(1{{num_suffix}}, 2{{num_suffix}}));
+        assert_eq!(rect.br, {{glam_type}}::new(3{{num_suffix}}, 4{{num_suffix}}));
+
+        rect = Rectangle::new({{glam_type}}::new(3{{num_suffix}}, 4{{num_suffix}}), {{glam_type}}::new(1{{num_suffix}}, 2{{num_suffix}}));
+        assert_eq!(rect.tl, {{glam_type}}::new(1{{num_suffix}}, 2{{num_suffix}}));
+        assert_eq!(rect.br, {{glam_type}}::new(3{{num_suffix}}, 4{{num_suffix}}));
+
+        rect = Rectangle::new({{glam_type}}::new(3{{num_suffix}}, 2{{num_suffix}}), {{glam_type}}::new(1{{num_suffix}}, 4{{num_suffix}}));
+        assert_eq!(rect.tl, {{glam_type}}::new(1{{num_suffix}}, 2{{num_suffix}}));
+        assert_eq!(rect.br, {{glam_type}}::new(3{{num_suffix}}, 4{{num_suffix}}));
+    }
+}

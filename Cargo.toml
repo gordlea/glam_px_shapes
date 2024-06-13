@@ -10,11 +10,12 @@ path = "src/lib.rs"
 
 
 [features]
-
+default = ["nightly"]
+nightly = ["glam/core-simd"]
 
 
 [dependencies]
-glam = { version = ">= 0.25", features = ["core-simd", "approx", "fast-math"] }
+glam = { version = ">= 0.25", features = ["approx", "fast-math"] }
 automod = "1.0.14"
 approx = "0.5.1"
 strum = { version = "0.26.2", features = ["derive"] }

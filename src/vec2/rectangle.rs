@@ -28,7 +28,22 @@ impl Rectangle {
     pub fn new_on_origin(size: Vec2) -> Self {
         Self { tl: Vec2::ZERO, br: size }
     }
+    #[cfg(feature = "nightly")]
+    pub const fn new(tl: Vec2, br: Vec2) -> Self {
+        let ttl = Vec2::new(
+            if tl.x < br.x { tl.x } else { br.x },
+            if tl.y < br.y { tl.y } else { br.y }
+        );
 
+        let tbr = Vec2::new(
+            if tl.x > br.x { tl.x } else { br.x },
+            if tl.y > br.y { tl.y } else { br.y }
+        );
+
+        Self { tl: ttl, br: tbr }
+    }
+
+    #[cfg(not(feature = "nightly"))]
     pub fn new(tl: Vec2, br: Vec2) -> Self {
 
         let ttl = Vec2::new(tl.x.min(br.x), tl.y.min(br.y));
@@ -155,5 +170,27 @@ impl crate::Shape<Vec2> for Rectangle {
 
     fn pixel_iter(&self, outline: bool) -> impl Iterator<Item = IVec2> {
         self.pixel_iter(outline)
+    }
+}
+
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let mut rect = Rectangle::new(Vec2::new(1.0, 2.0), Vec2::new(3.0, 4.0));
+        assert_eq!(rect.tl, Vec2::new(1.0, 2.0));
+        assert_eq!(rect.br, Vec2::new(3.0, 4.0));
+
+        rect = Rectangle::new(Vec2::new(3.0, 4.0), Vec2::new(1.0, 2.0));
+        assert_eq!(rect.tl, Vec2::new(1.0, 2.0));
+        assert_eq!(rect.br, Vec2::new(3.0, 4.0));
+
+        rect = Rectangle::new(Vec2::new(3.0, 2.0), Vec2::new(1.0, 4.0));
+        assert_eq!(rect.tl, Vec2::new(1.0, 2.0));
+        assert_eq!(rect.br, Vec2::new(3.0, 4.0));
     }
 }

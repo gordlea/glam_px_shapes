@@ -1,6 +1,8 @@
-#![feature(const_trait_impl)]
-#![feature(exact_size_is_empty)]
-#![feature(const_fn_floating_point_arithmetic)]
+// #![feature(const_trait_impl)]
+// #![feature(exact_size_is_empty)]
+// #![feature(const_fn_floating_point_arithmetic)]
+#![cfg_attr(feature = "nightly", feature(const_fn_floating_point_arithmetic))]
+
 pub mod ivec2;
 pub mod uvec2;
 pub mod vec2;

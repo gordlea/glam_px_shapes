@@ -19,7 +19,22 @@ impl Rectangle {
     pub fn new_on_origin(size: UVec2) -> Self {
         Self { tl: UVec2::ZERO, br: size }
     }
+    #[cfg(feature = "nightly")]
+    pub const fn new(tl: UVec2, br: UVec2) -> Self {
+        let ttl = UVec2::new(
+            if tl.x < br.x { tl.x } else { br.x },
+            if tl.y < br.y { tl.y } else { br.y }
+        );
 
+        let tbr = UVec2::new(
+            if tl.x > br.x { tl.x } else { br.x },
+            if tl.y > br.y { tl.y } else { br.y }
+        );
+
+        Self { tl: ttl, br: tbr }
+    }
+
+    #[cfg(not(feature = "nightly"))]
     pub fn new(tl: UVec2, br: UVec2) -> Self {
 
         let ttl = UVec2::new(tl.x.min(br.x), tl.y.min(br.y));
@@ -146,5 +161,27 @@ impl crate::Shape<UVec2> for Rectangle {
 
     fn pixel_iter(&self, outline: bool) -> impl Iterator<Item = IVec2> {
         self.pixel_iter(outline)
+    }
+}
+
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let mut rect = Rectangle::new(UVec2::new(1, 2), UVec2::new(3, 4));
+        assert_eq!(rect.tl, UVec2::new(1, 2));
+        assert_eq!(rect.br, UVec2::new(3, 4));
+
+        rect = Rectangle::new(UVec2::new(3, 4), UVec2::new(1, 2));
+        assert_eq!(rect.tl, UVec2::new(1, 2));
+        assert_eq!(rect.br, UVec2::new(3, 4));
+
+        rect = Rectangle::new(UVec2::new(3, 2), UVec2::new(1, 4));
+        assert_eq!(rect.tl, UVec2::new(1, 2));
+        assert_eq!(rect.br, UVec2::new(3, 4));
     }
 }
