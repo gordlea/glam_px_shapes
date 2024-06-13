@@ -162,7 +162,6 @@ impl Iterator for LineIterImpl {
 mod test {
     use std::vec;
 
-    use crate::vec2;
 
     use super::*;
 

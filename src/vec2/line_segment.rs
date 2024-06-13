@@ -1,14 +1,12 @@
-use glam::Vec2;
-use glam::IVec2;
 use crate::vec2::{LineIter, LineDrawAlgo};
 #[derive(Debug, Copy, Clone, Default)]
 pub struct LineSegment {
-    pub start: Vec2,
-    pub end: Vec2,
+    pub start: glam::Vec2,
+    pub end: glam::Vec2,
 }
 
 impl LineSegment {
-    pub fn new(start: Vec2, end: Vec2) -> Self {
+    pub fn new(start: glam::Vec2, end: glam::Vec2) -> Self {
         Self { 
             start, 
             end 
@@ -16,11 +14,11 @@ impl LineSegment {
     }
 
     /// Create a new line segment from a start point, a direction and a length
-    pub fn new_from_length(start: Vec2, dir: Vec2, length: f32) -> Self {
+    pub fn new_from_length(start: glam::Vec2, dir: glam::Vec2, length: f32) -> Self {
         Self { start, end: start + dir * length }
     }
 
-    pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = Vec2> {
+    pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = glam::Vec2> {
     LineIter::new_from_segment(*self, draw_mode)
         
     }

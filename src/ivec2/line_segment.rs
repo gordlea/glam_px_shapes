@@ -1,13 +1,12 @@
-use glam::IVec2;
 use crate::ivec2::{LineIter, LineDrawAlgo};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct LineSegment {
-    pub start: IVec2,
-    pub end: IVec2,
+    pub start: glam::IVec2,
+    pub end: glam::IVec2,
 }
 
 impl LineSegment {
-    pub fn new(start: IVec2, end: IVec2) -> Self {
+    pub fn new(start: glam::IVec2, end: glam::IVec2) -> Self {
         Self { 
             start, 
             end 
@@ -15,11 +14,11 @@ impl LineSegment {
     }
 
     /// Create a new line segment from a start point, a direction and a length
-    pub fn new_from_length(start: IVec2, dir: IVec2, length: i32) -> Self {
+    pub fn new_from_length(start: glam::IVec2, dir: glam::IVec2, length: i32) -> Self {
         Self { start, end: start + dir * length }
     }
 
-    pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = IVec2> {
+    pub fn pixel_iter(&self, draw_mode: LineDrawAlgo) -> impl Iterator<Item = glam::IVec2> {
     LineIter::new_from_segment(*self, draw_mode)
         
     }
