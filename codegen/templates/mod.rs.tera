@@ -5,3 +5,7 @@
 mod {{ mod_name }};
 pub use {{ mod_name }}::*;
 {% endfor %}
+{% if glam_type != "UVec2" %} 
+mod line_iter;
+pub use line_iter::*;
+{% endif %}
