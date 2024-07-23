@@ -106,8 +106,16 @@ impl {{ struct_name }} {
         self.tl
     }
 
+    pub fn tr(&self) -> {{ glam_type }} {
+        {{ glam_type }}::new(self.br.x, self.tl.y)
+    }    
+
     pub fn br(&self) -> {{ glam_type }} {
         self.br
+    }
+
+    pub fn bl(&self) -> {{ glam_type }} {
+        {{ glam_type }}::new(self.tl.x, self.br.y)
     }
 
     pub fn size(&self) -> {{ glam_type }} {

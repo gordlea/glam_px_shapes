@@ -89,8 +89,16 @@ impl Rectangle {
         self.tl
     }
 
+    pub fn tr(&self) -> IVec2 {
+        IVec2::new(self.br.x, self.tl.y)
+    }    
+
     pub fn br(&self) -> IVec2 {
         self.br
+    }
+
+    pub fn bl(&self) -> IVec2 {
+        IVec2::new(self.tl.x, self.br.y)
     }
 
     pub fn size(&self) -> IVec2 {

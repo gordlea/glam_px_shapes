@@ -99,8 +99,16 @@ impl Rectangle {
         self.tl
     }
 
+    pub fn tr(&self) -> Vec2 {
+        Vec2::new(self.br.x, self.tl.y)
+    }    
+
     pub fn br(&self) -> Vec2 {
         self.br
+    }
+
+    pub fn bl(&self) -> Vec2 {
+        Vec2::new(self.tl.x, self.br.y)
     }
 
     pub fn size(&self) -> Vec2 {

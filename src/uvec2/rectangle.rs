@@ -90,8 +90,16 @@ impl Rectangle {
         self.tl
     }
 
+    pub fn tr(&self) -> UVec2 {
+        UVec2::new(self.br.x, self.tl.y)
+    }    
+
     pub fn br(&self) -> UVec2 {
         self.br
+    }
+
+    pub fn bl(&self) -> UVec2 {
+        UVec2::new(self.tl.x, self.br.y)
     }
 
     pub fn size(&self) -> UVec2 {
